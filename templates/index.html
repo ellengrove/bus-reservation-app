@@ -43,6 +43,7 @@
         
         <!-- Custom styles for this template -->
         <link href="../static/css/carousel.css" rel="stylesheet">
+        <link href="../static/css/styles.css" rel="stylesheet">
       </head>
 <body>
     
@@ -139,29 +140,38 @@
         <hr class="featurette-divider">
     
         <div class="row featurette">
-          <div class="col-md-3">
+          <div class="col-md-2">
           </div>
           <div class="col-md-2">
             <div class="dropdown">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <label for="departures">Departing From</label>
+                <!-- <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
                   Departing From
-                </button>
-                <ul class="dropdown-menu">
-                    <!-- <select id="selectDeparture" onchange="optionChanged(this.value)"></select> -->
-                </ul>
+                </button> -->
+                <!-- <ul class="dropdown-menu"> -->
+                  <select name="departures" id="selectDeparture">
+
+                  </select>
+                <!-- </ul> -->
               </div>
               </div>
           <div class="col-md-2">
               <div class="dropdown">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <label for="arrivals">Arriving In</label>
+                <!-- <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
                   Arriving In
-                </button>
-                <ul class="dropdown-menu">
-                    <!-- <select id="selectArrival" onchange="optionChanged(this.value)"></select> -->
-                </ul>
+                </button> -->
+                <!-- <ul class="dropdown-menu"> -->
+                  <select name="arrivals" id="selectArrival">
+
+                  </select>
+                <!-- </ul> -->
               </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
+            <button onclick="findTrips()" type="button" class="btn btn-outline-primary">Search for Trips</button>
+          </div>
+          <div class="col-md-2">
           </div>
         </div>
 
@@ -169,6 +179,32 @@
 
     
         <hr class="featurette-divider">
+
+        <div class="row featurette">
+          <div class="col-md-3">
+          </div>
+          <div class="col-md-6">
+            <table id="runsTable" style="width:50%" class="hidden">
+              <tr>
+                <th>Run Number</th>
+                <th>Departing</th> 
+                <th>Arriving</th>
+              </tr>
+              <!-- <tr>
+                <td>Jill</td>
+                <td>Smith</td> 
+                <td>50</td>
+              </tr>
+              <tr>
+                <td>Eve</td>
+                <td>Jackson</td> 
+                <td>94</td>
+              </tr> -->
+            </table>
+          </div>
+          <div class="col-md-3">
+          </div>
+        </div>
     
         <!-- /END THE FEATURETTES -->
     

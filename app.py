@@ -1,9 +1,10 @@
 #  Dependencies 
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from config import protocol, username, password, host, port
 from flask import Flask, jsonify, render_template  
+from json import dumps
 
 #################################################
 # Database Setup
@@ -34,7 +35,7 @@ def home():
     return render_template('index.html')
 
 @app.route("/citySelections")
-def test():
+def dropdown():
 
     session = Session(engine)
 
@@ -44,15 +45,60 @@ def test():
     session.close()
 
     # print(results)
-    runs_list = []
+    departures = []
+    arrivals = []
     for departure_city, departure_state, arrival_city, arrival_state in results:
-        run = {}
-        run['departures'] = f'{departure_city}, {departure_state}'
-        run['arrivals'] = f'{arrival_city}, {arrival_state}'
-        runs_list.append(run)
-        print(runs_list)
+        departure = f'{departure_city}, {departure_state}'
+        arrival = f'{arrival_city}, {arrival_state}'
+        departures.append(departure)
+        arrivals.append(arrival)
+
+    runs_list = {'departures' : departures,
+                'arrivals' : arrivals}    
 
     return jsonify(runs_list)
+
+@app.route("/findTrips")
+def findTrips():
+    
+    session = Session(engine)
+
+    # Query all departure and arrival cities
+
+    results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
+        runs.departure_state, runs.arrival_city, runs.arrival_state, runs.arrival_date, runs.arrival_time,\
+        func.count(seats.seat).label('capacity'),\
+        func.count(seats.reserved_id).label('num_reserved'))\
+        .where(runs.run_id == seats.run_id)\
+        .group_by(runs.run_id)\
+        .all()
+    session.close()
+
+    avail_runs = []
+    for run_id, departure_date, departure_time, departure_city, departure_state, arrival_city, arrival_state, arrival_date, arrival_time, capacity, num_reserved in results:
+        if num_reserved < capacity:
+            avail_runs.append({'run_id' : run_id,
+                            'departure_date' : departure_date,
+                            'departure_time' : departure_time,
+                            'departure_location' : f'{departure_city}, {departure_state}',
+                            'arrival_location' : f'{arrival_city}, {arrival_state}',
+                            'arrival_date' : arrival_date,
+                            'arrival_time' : arrival_time})
+
+    avail_runs_jsonified = dumps(avail_runs, indent=4, sort_keys=True, default=str)
+
+    # data = [{'h' : 'h'}]
+    return jsonify(avail_runs_jsonified)
+    # trips = {}
+    # for departure_city, departure_state, arrival_city, arrival_state in results:
+    #     departure = f'{departure_city}, {departure_state}'
+    #     arrival = f'{arrival_city}, {arrival_state}'
+    #     departures.append(departure)
+    #     arrivals.append(arrival)
+
+
+
+
 
 if __name__ == '__main__':
     app.run()
