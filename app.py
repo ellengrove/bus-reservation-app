@@ -76,28 +76,18 @@ def findTrips():
 
     avail_runs = []
     for run_id, departure_date, departure_time, departure_city, departure_state, arrival_city, arrival_state, arrival_date, arrival_time, capacity, num_reserved in results:
+        # print(str(departure_date))
+        # print(str(departure_time))
         if num_reserved < capacity:
             avail_runs.append({'run_id' : run_id,
-                            'departure_date' : departure_date,
-                            'departure_time' : departure_time,
+                            'departure_date' : str(departure_date),
+                            'departure_time' : str(departure_time),
                             'departure_location' : f'{departure_city}, {departure_state}',
                             'arrival_location' : f'{arrival_city}, {arrival_state}',
-                            'arrival_date' : arrival_date,
-                            'arrival_time' : arrival_time})
+                            'arrival_date' : str(arrival_date),
+                            'arrival_time' : str(arrival_time)})
 
-    avail_runs_jsonified = dumps(avail_runs, indent=4, sort_keys=True, default=str)
-
-    # data = [{'h' : 'h'}]
-    return jsonify(avail_runs_jsonified)
-    # trips = {}
-    # for departure_city, departure_state, arrival_city, arrival_state in results:
-    #     departure = f'{departure_city}, {departure_state}'
-    #     arrival = f'{arrival_city}, {arrival_state}'
-    #     departures.append(departure)
-    #     arrivals.append(arrival)
-
-
-
+    return jsonify(avail_runs)
 
 
 if __name__ == '__main__':
