@@ -1,7 +1,7 @@
 #  Dependencies 
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, and_
 from config import protocol, username, password, host, port
 from flask import Flask, jsonify, render_template  
 from json import dumps
@@ -75,9 +75,40 @@ def findTrips():
     session.close()
 
     avail_runs = []
-    for run_id, departure_date, departure_time, departure_city, departure_state, arrival_city, arrival_state, arrival_date, arrival_time, capacity, num_reserved in results:
-        # print(str(departure_date))
-        # print(str(departure_time))
+    for run_id, departure_date, departure_time, departure_city, departure_state,\
+        arrival_city, arrival_state, arrival_date, arrival_time, capacity, num_reserved in results:
+
+        if num_reserved < capacity:
+            avail_runs.append({'run_id' : run_id,
+                            'departure_date' : str(departure_date),
+                            'departure_time' : str(departure_time),
+                            'departure_location' : f'{departure_city}, {departure_state}',
+                            'arrival_location' : f'{arrival_city}, {arrival_state}',
+                            'arrival_date' : str(arrival_date),
+                            'arrival_time' : str(arrival_time)})
+
+    return jsonify(avail_runs)
+
+@app.route("/find/<depart>/<arrive>")
+def find(depart,arrive):
+    
+    session = Session(engine)
+
+    # Query the departure and arrival city selected from dropdown
+
+    results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
+        runs.departure_state, runs.arrival_city, runs.arrival_state, runs.arrival_date, runs.arrival_time,\
+        func.count(seats.seat).label('capacity'),\
+        func.count(seats.reserved_id).label('num_reserved'))\
+        .where(and_(runs.run_id == seats.run_id,runs.departure_city == depart,runs.arrival_city == arrive))\
+        .group_by(runs.run_id)\
+        .all()
+    session.close()
+        # .where(and_(runs.run_id == seats.run_id,runs.departure_city == depart,runs.arrival_city == arrive))\
+
+    avail_runs = []
+    for run_id, departure_date, departure_time, departure_city, departure_state,\
+        arrival_city, arrival_state, arrival_date, arrival_time, capacity, num_reserved in results:
         if num_reserved < capacity:
             avail_runs.append({'run_id' : run_id,
                             'departure_date' : str(departure_date),
