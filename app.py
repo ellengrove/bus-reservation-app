@@ -91,21 +91,50 @@ def findTrips():
 
 @app.route("/find/<depart>/<arrive>")
 def find(depart,arrive):
+    print(depart)
+    print(arrive)
     
     session = Session(engine)
 
     # Query the departure and arrival city selected from dropdown
-
-    results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
+    if depart == 'all' and arrive == 'all':
+        results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
         runs.departure_state, runs.arrival_city, runs.arrival_state, runs.arrival_date, runs.arrival_time,\
         func.count(seats.seat).label('capacity'),\
         func.count(seats.reserved_id).label('num_reserved'))\
-        .where(and_(runs.run_id == seats.run_id,runs.departure_city == depart,runs.arrival_city == arrive))\
+        .where(runs.run_id == seats.run_id)\
         .group_by(runs.run_id)\
         .all()
+
+    elif depart == 'all' and arrive != 'all':
+        results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
+        runs.departure_state, runs.arrival_city, runs.arrival_state, runs.arrival_date, runs.arrival_time,\
+        func.count(seats.seat).label('capacity'),\
+        func.count(seats.reserved_id).label('num_reserved'))\
+        .where(and_(runs.run_id == seats.run_id,runs.arrival_city == arrive))\
+        .group_by(runs.run_id)\
+        .all()
+
+    elif depart != 'all' and arrive == 'all':
+        results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
+        runs.departure_state, runs.arrival_city, runs.arrival_state, runs.arrival_date, runs.arrival_time,\
+        func.count(seats.seat).label('capacity'),\
+        func.count(seats.reserved_id).label('num_reserved'))\
+        .where(and_(runs.run_id == seats.run_id,runs.departure_city == depart))\
+        .group_by(runs.run_id)\
+        .all()
+    else:
+        results = session.query(runs.run_id, runs.departure_date, runs.departure_time, runs.departure_city,\
+            runs.departure_state, runs.arrival_city, runs.arrival_state, runs.arrival_date, runs.arrival_time,\
+            func.count(seats.seat).label('capacity'),\
+            func.count(seats.reserved_id).label('num_reserved'))\
+            .where(and_(runs.run_id == seats.run_id,runs.departure_city == depart,runs.arrival_city == arrive))\
+            .group_by(runs.run_id)\
+            .all()
     session.close()
         # .where(and_(runs.run_id == seats.run_id,runs.departure_city == depart,runs.arrival_city == arrive))\
 
+    
     avail_runs = []
     for run_id, departure_date, departure_time, departure_city, departure_state,\
         arrival_city, arrival_state, arrival_date, arrival_time, capacity, num_reserved in results:
@@ -117,7 +146,7 @@ def find(depart,arrive):
                             'arrival_location' : f'{arrival_city}, {arrival_state}',
                             'arrival_date' : str(arrival_date),
                             'arrival_time' : str(arrival_time)})
-
+    print(avail_runs)
     return jsonify(avail_runs)
 
 

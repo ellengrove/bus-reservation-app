@@ -43,22 +43,26 @@ function findTrips() {
             d3.select("#unavailRun").text("We're sorry. No routes found.")
         } else {
         // If API returns non-empty results, iterate through
-        for (let i = 0; i < data.length; i++) {
-            let run_id = data[i].run_id
-            let departing = `${data[i].departure_location} on ${data[i].departure_date} at ${data[i].departure_time}`
-            let arriving = `${data[i].arrival_location} on ${data[i].arrival_date} at ${data[i].arrival_time}`
-
             let thead = table.append('thead').attr("class","table-light").attr("id","runsHeader");
             let header = thead.append("tr")
             header.append("td").text('Run Number')
             header.append("td").text("Departing From")
             header.append("td").text("Arriving In")
 
+        for (let i = 0; i < data.length; i++) {
+            let run_id = data[i].run_id
+            let departing = `${data[i].departure_location} on ${data[i].departure_date} at ${data[i].departure_time}`
+            let arriving = `${data[i].arrival_location} on ${data[i].arrival_date} at ${data[i].arrival_time}`
+
+
             let	tbody = table.append('tbody').attr("id","runsBody");
             let run = tbody.append('tr')
             run.append("td").text(run_id)
             run.append("td").text(departing)
             run.append("td").text(arriving)
+            console.log(run_id)
+            console.log(arriving)
+            console.log(departing)
           }
         }
     })
